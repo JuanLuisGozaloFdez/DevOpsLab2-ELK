@@ -1,0 +1,77 @@
+# ======================== Elasticsearch Configuration =========================
+#
+# Set up the configuration of a ElasticSearch Node via this file. 
+# Please, read the official documentation for full information about the configutation options.
+# https://www.elastic.co/guide/en/elasticsearch/reference/index.html
+#
+# This configuration example will try to highlight some of the most important settings 
+# that are often configured in a ElasticSearch production cluster.
+#
+# ==>>>>> SECTION: CLUSTER:
+#
+# Set the name of the cluster (by default: elasticsearch):
+#
+cluster.name: devopslab_cluster
+#
+# ==>>>>> SECTION: NODE
+#
+# Set the name for the node (as detail as possible. Suggestion: env_datacenter_node_number
+#
+node.name: prod_devopslab_node_1
+#
+# Set additional attributes to this node:
+#
+# node.attr.rack: r1
+#
+# ==>>>>> SECTION: PATHS
+#
+# Define the directories to be used for storing data (separated by comma):
+#
+# path.data: /usr/share/elasticshare/data
+#
+# Path to log files:
+#
+# path.logs: /usr/share/elasticsearch/log
+#
+# ==>>>>> SECTION: MEMORY USAGE
+#
+# Set if memory must be Locked on startup:
+#
+# bootstrap.memory_lock: true
+#
+# CAUTION: JVM HEap size MUST be set to about half the memory available on the running environment.
+# CAUTION: Process owner is allowed to use this memory limit to avoid caching.
+#
+# ==>>>>> SECTION: NETWROK
+#
+# Define an IP network address:
+#
+network.host: 0.0.0.0
+# network.host: localhost (it is not working always)
+#
+# Define a HTTP port:
+#
+# http.port: 9200
+#
+# ==>>>>> SECTION: DISCOVERY
+#
+# By default, ElasticSearch will look to ["127.0.0.1", "[::1]"] for initial setup.
+# Any list of hosts to perform discovery at startup must be defined here: 
+#
+# discovery.zen.ping.unicast.hosts: ["host1", "host2"]
+#
+# Prevent the "split brain" by configuring the majority of nodes (total number of master-eligible nodes / 2 + 1):
+#
+# discovery.zen.minimum_master_nodes:
+#
+# ==>>>>> SECTION: GATEWAY
+#
+# Block initial recovery after a full cluster restart until N nodes are started:
+#
+# gateway.recover_after_nodes: 3
+#
+# ==>>>>> SECTION: OTHERS
+#
+# Require explicit names when deleting indices:
+#
+# action.destructive_requires_name: true

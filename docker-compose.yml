@@ -1,0 +1,164 @@
+version: "3"
+
+services:
+  ##################################################################################
+  # ELASTICSEARCH MASTER NODE                                                      #
+  ##################################################################################
+  elasticsearch:
+    # If you do not need any plugin, you can load directly from 
+    # image: elasticsearch:7.8.0
+    # If you need plugin then take the image using a Dockerfile, installing the additional plugins at build phase
+    build: .
+    # if clustering is going to set then, AND DO NOT WANT TO DEFINE EXPLICITILY AS SEPARATED SERVICES
+    # the following line must be uncommented to allow each replica to have their own container_name
+    # IMPORTANT: PLEASE, BEAR IN MIND THAT CLUSTERING IS A PAID LICENCE.
+    container_name: elasticsearch
+    # and you must uncomment the following lines to allow multiple deploys
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    environment:
+      - discovery.type=single-node # to be commented when multiple nodes are set
+      - node.master=true
+      - node.ingest=true
+      - node.data=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/apps:/usr/share/elasticsearch/apps
+    # if multiple instances are going to be started, AND DO NOT WANT TO DEFINE EXPLICITILY AS SEPARATED SERVICES
+    # then set ports only to the external port 9200 and 9300, i.e. - "9200"
+    networks:
+      - elastic
+    ports:
+      - "9200:9200" # to be used by direct http connections
+      - "9300:9300" # to be used by application client connections
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      
+  ##################################################################################
+  # ELASTICSEARCH SECOND NODE                                                      #
+  ##################################################################################
+  #els2:
+  #  build: .
+  #  container_name: els2
+  #  environment:
+  #    - discovery.type=single-node
+  #    - node.master=true
+  #    - node.ingest=true
+  #    - node.data=true
+  #    - "discovery.zen.ping.unicast.hosts=elasticsearch"
+  #    - ES_JAVA_OPTS=-Xms512m -Xmx512m
+  #  volumes:
+  #    - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  #    - ./elasticsearch/apps:/usr/share/elasticsearch/apps
+  #  networks:
+  #    - elastic
+  #  ports:
+  #    - "9201:9200" # to be used by direct http connections
+  #    - "9301:9300" # to be used by application client connections
+  #  healthcheck:
+  #    test: ["CMD-SHELL", "curl --silent --fail localhost:9201/_cluster/health || exit 1"]
+  #    interval: 10s
+  #    timeout: 10s
+  #    retries: 3
+
+  ##################################################################################
+  # CEREBRO NODE FOR MONITORING ELASTICSEARCH CLUSTER                              #
+  ##################################################################################
+  cerebro:
+    image: lmenezes/cerebro
+    container_name: cerebro
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
+    ports:
+      - "9000:9000"
+  
+  ##################################################################################
+  # LOGSTASH NODE                                                                  #
+  ##################################################################################
+  logstash:
+    image: logstash:7.10.1
+    container_name: logst
+    depends_on:
+      - elasticsearch
+    environment:
+      discovery.seed_hosts: logstash
+      LS_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+#      - ./logstash/nginx.log:/home/nginx.log
+      - ./logstash/conf:/usr/share/logstash/pipeline
+      - ./logstash/templates:/usr/share/logstash/templates
+#      - ./logstash/conf:/etc/logstash/conf.d
+    networks:
+      - elastic
+    ports:
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "5044:5044"
+      - "9600:9600"
+    # For testing, 
+    # command: logstash -f /usr/share/logstash/conf/a_log_file_logstash-nginx.conf
+
+  ##################################################################################
+  # NGINX WEB SERVER                                                               #
+  ##################################################################################
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    depends_on:
+      - logstash
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/module.d:/usr/share/filebeat/module.d
+    networks:
+      - elastic
+    ports:
+      - "4000:4000"   
+  
+  ##################################################################################
+  # KIBANA NODE TO VISUALIZE DATA                                                  #
+  ##################################################################################
+  kibana:
+    image: kibana:7.8.0
+    container_name: kib
+    networks:
+      - elastic
+    ports:
+      - "5601:5601"
+  
+  ##################################################################################
+  # FILEBEAT EXAMPLE NODE FOR DATA RECOLECTION                                     #
+  ##################################################################################
+  filebeat:
+    image: elastic/filebeat:7.10.2
+    container_name: filebeat
+    depends_on:
+      - logstash
+      - elasticsearch
+      - kibana
+    networks:
+      - elastic
+    volumes:
+      - ./filebeat/logs:/usr/share/filebeat/logs
+      - ./filebeat/conf/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    command: ["--strict.perms=false –-E filebeat.config.modules.path=./modules.d/*.yml"]
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t   
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "50"
+
+##################################################################################
+# NETWORKS                                                                       #
+##################################################################################
+networks:
+  elastic:
+    driver: bridge
