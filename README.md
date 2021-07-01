@@ -2,6 +2,11 @@
 
 ## Set Stack ELK (Elasticsearch, Logstash, FileBeat and Kibana) in one single-node installation
 
+### Setting initial requirements
+
+This DevOps Lab will require a virtual machine with 4GB memory and, at least, 10GB space to be executed.
+That machine will be Ubuntu 18.04 (or similar Linux) with GIT, Docker and DockerCompose already installed.
+
 ### Project structure
 
 ```
