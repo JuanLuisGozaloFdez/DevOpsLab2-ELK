@@ -147,7 +147,8 @@ services:
     volumes:
       - ./filebeat/logs:/usr/share/filebeat/logs
       - ./filebeat/conf/filebeat.yml:/usr/share/filebeat/filebeat.yml
-    command: ["--strict.perms=false –-E filebeat.config.modules.path=./modules.d/*.yml"]
+    # command: ["--strict.perms=false –-E filebeat.config.modules.path=./modules.d/*.yml"]
+    command: ["--strict.perms=false"]
     stdin_open: true # docker run -i
     tty: true        # docker run -t   
     logging:
