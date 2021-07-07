@@ -1,7 +1,14 @@
 filebeat.config.modules:
-- enabled: true
-  paths:
-    - /usr/share/filebeat/modules.d/*.yml
+  path: ${path.config}/modules.d/*.yml
+
+filebeat.modules:
+- module: system
+  syslog:
+    enabled: true
+    var.paths: ["/var/log/syslog"]
+  auth:
+    enabled: true
+    var.paths: ["/var/log/auth.log"]
 
 filebeat.inputs:
 - type: log

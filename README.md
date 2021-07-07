@@ -9,7 +9,7 @@ That machine will be Ubuntu 18.04 (or similar Linux) with GIT, Docker and Docker
 
 ### Project structure
 
-```
+```ascii
 .
 └── docker-compose.yml
 └── README.md
@@ -96,3 +96,111 @@ Stop and remove the containers (add -v if data must be deleted)
 $ docker-compose down -v
 $
 ```
+
+## Check connectivity between Filebeats and ElasticSearch
+
+Filebeat could be connected to Logstash or ElasticSearch to send the data. In this part of the lab, ElasticSearch connectivity will be tested.
+To verify, it is required to connect to Filebeat container to execute a simple command verification
+
+```bash
+$ docker exec -it filebeat /bin/bash
+$> ./filebeat test output
+elasticsearch: http://elasticsearch:9200 ...
+  parse url... OK
+  connection...
+    parse host... OK
+    dns lookup... OK
+    address... some-ip
+    dial up... OK
+  TLS... WARN secure connection disabled
+  talk to server... OK
+  version: 7.10.1
+$>
+```
+
+The elasticsearch connection is shown with the status. If it is ok, a message like the previous one will be shown as the filebeat.yml file is properly configured with the elasticsearch url.
+
+## Test the data ingest and index management in Elasticsearch using console
+
+A set of commands could be executed to verify the elasticsearch behaviour.
+All these test have the same pattern:
+
+```bash
+$ curl –X ACTION "localhost:9200/INDEX/TYPE/DOCUMENT?PARAMS" –H DATATYPE DATA
+$
+```
+
+### Insert one document in an index
+
+```bash
+$ curl 
+-X PUT "localhost:9200/contacts/_doc/1?pretty" 
+-H 'Content-Type: application/json' -d'{ "name": "your name 1" }'
+$ curl 
+-X PUT "localhost:9200/contactos/_doc/2?pretty" 
+-H 'Content-Type: application/json' -d' { "name": "other name" }'
+$
+```
+
+### Retrieve data of one specific document
+
+```bash
+$ curl 
+-X GET "localhost:9200/contactos/_doc/1"
+$ 
+```
+
+### Update data in one document
+
+```bash
+$ curl 
+-X PUT "localhost:9200/contactos/_doc/2?pretty" 
+-H 'Content-Type: application/json' -d' { "name": "your name 2" }'
+$
+```
+
+### Check indexes
+
+```bash
+$ curl "localhost:9200/_cat/indices?v=true"
+$
+```
+
+### Delete data in one index
+
+```bash
+$ curl -X DELETE "localhost:9200/contactos/_doc/2"
+$
+```
+
+### Insert batch data in one index
+
+File ${HOME}/logstash/logstash-tutorial-dataset.json will be used to execute this test
+
+```bash
+$ curl -H 'Content-Type: application/json' 
+     -XPOST "localhost:9200/connections/_bulk?pretty&refresh" 
+     --data_binary "@logstats-tutorial-dataset.json"
+$
+```
+
+### Check Kibana dashboards from Beats
+
+To verify some kibana dashboard to show Beats data, execute these commands to activate some log modules to get data for Filebeat:
+
+```bash
+$ docker exec –it filebeat /bin/bash
+$> chown root filebeat.yml
+$> chmod go-w filebeat.yml
+$> ./filebeat –E "filebeat.config.modules.path=./modules.d/*.yml" modules enable system
+Enabled system module
+$> ./filebeat –E "filebeat.config.modules.path=./modules.d/*.yml" modules enable nginx
+Enabled nginx module
+$> ./filebeat setup --pipelines --modules system
+Loaded Ingest pipelines
+$> ./filebeat setup –e
+....
+$> 
+```
+
+The last instructions will load in Kibana the appopiate dashboards for System and for Nginx to be used for display information and it will be possible to select them.
