@@ -40,11 +40,11 @@ services:
 ```
 
 This compose file will create a stack with the ELK main services: `elasticsearch`, `logstash` and `kibana`;
-Additionally, the compose adds a filebeat as an example of an external source of information, the Cerebro tool which is used to make basic monitoring and operation over the Stack.
+Additionally, the compose adds a `filebeat` as an example of an external source of information, the `cerebro` tool which is used to make basic monitoring and operation over the Stack.
 
-A NGINX server is also added just for testing purpose of the systems.
+A `nginx` server is also added just for testing purpose of the systems.
 
-When the stack is been deployed, the docker-compose maps port the default ports for each service to the equivalent ports on the host in order to inspect easier the web interface of each service.
+When the stack is been deployed, the docker-compose maps the default ports for each service to the equivalent ports on the host in order to inspect easier the web interface of each service.
 
 **IMPORTANT NOTICE**: Ports 9200, 9300, 9000, 5000, 5044, 9600, 5601 and 4000 on the host MUST NOT already in use.
 
@@ -118,7 +118,7 @@ elasticsearch: http://elasticsearch:9200 ...
 $>
 ```
 
-The elasticsearch connection is shown with the status. If it is ok, a message like the previous one will be shown as the filebeat.yml file is properly configured with the elasticsearch url.
+The ElasticSearch connection is shown with the status. If it is ok, a message like the previous one will be shown as the filebeat.yml file is properly configured with the elasticsearch url.
 
 ## Test the data ingest and index management in Elasticsearch using console
 
