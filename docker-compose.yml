@@ -136,7 +136,7 @@ services:
   # FILEBEAT EXAMPLE NODE FOR DATA RECOLECTION                                     #
   ##################################################################################
   filebeat:
-    image: elastic/filebeat:latest
+    image: elastic/filebeat:7.17.1
     container_name: filebeat
     depends_on:
       - logstash
