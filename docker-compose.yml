@@ -125,7 +125,7 @@ services:
   # KIBANA NODE TO VISUALIZE DATA                                                  #
   ##################################################################################
   kibana:
-    image: kibana:7.17.1
+    image: elastic/kibana:7.17.1
     container_name: kib
     networks:
       - elastic
