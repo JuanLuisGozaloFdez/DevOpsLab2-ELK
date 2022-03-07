@@ -1,4 +1,4 @@
-FROM elasticsearch:7.10.1
+FROM elasticsearch:7.17.1
 
 ENV ES_HOME /usr/share/elasticsearch
 WORKDIR ${ES_HOME}
