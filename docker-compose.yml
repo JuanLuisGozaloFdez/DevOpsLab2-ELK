@@ -125,7 +125,7 @@ services:
   # KIBANA NODE TO VISUALIZE DATA                                                  #
   ##################################################################################
   kibana:
-    image: kibana:7.8.0
+    image: kibana:latest
     container_name: kib
     networks:
       - elastic
@@ -136,7 +136,7 @@ services:
   # FILEBEAT EXAMPLE NODE FOR DATA RECOLECTION                                     #
   ##################################################################################
   filebeat:
-    image: docker.elastic.co/filebeat:7.11.1
+    image: elastic/filebeat:latest
     container_name: filebeat
     depends_on:
       - logstash
