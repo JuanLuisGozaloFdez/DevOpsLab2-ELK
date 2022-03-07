@@ -142,14 +142,19 @@ services:
       - logstash
       - elasticsearch
       - kibana
-    user: root
+    # user: root
     networks:
       - elastic
     volumes:
       - ./filebeat/logs:/usr/share/filebeat/logs
       - ./filebeat/conf/filebeat.yml:/usr/share/filebeat/filebeat.yml
-    # command: ["--strict.perms=false –-E filebeat.config.modules.path=./modules.d/*.yml"]
-    command: ["--strict.perms=false"]
+    # - ./filebeat/modules.d/system.yml:/usr/share/filebeat/modules.d/system.yml
+    # - ./filebeat/modules.d/nginx.yml:/usr/share/filebeat/modules.d/nginx.yml
+    # - ./filebeat/modules.d:/usr/share/filebeat/modules.d
+    command: 
+      - "--strict.perms=false"
+    # - "–-E filebeat.config.modules.path=./modules.d/*.yml"
+    # - "--strict.perms=false –-E filebeat.config.modules.path=./modules.d/*.yml"
     stdin_open: true # docker run -i
     tty: true        # docker run -t   
     logging:
@@ -164,3 +169,9 @@ services:
 networks:
   elastic:
     driver: bridge
+
+##################################################################################
+# VOLUMES                                                                        #
+##################################################################################
+volumes:
+  ngixlog: {}
