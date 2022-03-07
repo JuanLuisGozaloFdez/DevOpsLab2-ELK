@@ -1,4 +1,5 @@
 filebeat.config.modules:
+- enabled: true
   path: ${path.config}/modules.d/*.yml
 
 filebeat.modules:
