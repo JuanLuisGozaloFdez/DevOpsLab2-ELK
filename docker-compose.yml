@@ -142,14 +142,14 @@ services:
       - logstash
       - elasticsearch
       - kibana
-    # user: root
+    user: root
     networks:
       - elastic
     volumes:
       - ./filebeat/logs:/usr/share/filebeat/logs
       - ./filebeat/conf/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - ./var/log/syslog:/var/log/syslog:ro
-      - ./var/log/auth.log:/var/log/auth.log:ro
+      - /var/log/syslog:/var/log/syslog:ro
+      - /var/log/auth.log:/var/log/auth.log:ro
     command: 
       - "--strict.perms=false"
     # - "–-E filebeat.config.modules.path=./modules.d/*.yml"
