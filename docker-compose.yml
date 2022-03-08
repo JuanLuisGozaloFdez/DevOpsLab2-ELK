@@ -108,18 +108,18 @@ services:
   ##################################################################################
   # NGINX WEB SERVER                                                               #
   ##################################################################################
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    depends_on:
-      - logstash
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/module.d:/usr/share/filebeat/module.d
-    networks:
-      - elastic
-    ports:
-      - "4000:4000"   
+  #nginx:
+  #  image: nginx:latest
+  #  container_name: nginx
+  #  depends_on:
+  #    - logstash
+  #  volumes:
+  #    - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #    - ./nginx/module.d:/usr/share/filebeat/module.d
+  #  networks:
+  #    - elastic
+  #  ports:
+  #    - "4000:4000"   
   
   ##################################################################################
   # KIBANA NODE TO VISUALIZE DATA                                                  #
@@ -148,13 +148,11 @@ services:
     volumes:
       - ./filebeat/logs:/usr/share/filebeat/logs
       - ./filebeat/conf/filebeat.yml:/usr/share/filebeat/filebeat.yml
-    # - ./filebeat/modules.d/system.yml:/usr/share/filebeat/modules.d/system.yml
-    # - ./filebeat/modules.d/nginx.yml:/usr/share/filebeat/modules.d/nginx.yml
-    # - ./filebeat/modules.d:/usr/share/filebeat/modules.d
+      - ./var/log/syslog:/var/log/syslog:ro
+      - ./var/log/auth.log:/var/log/auth.log:ro
     command: 
       - "--strict.perms=false"
     # - "–-E filebeat.config.modules.path=./modules.d/*.yml"
-    # - "--strict.perms=false –-E filebeat.config.modules.path=./modules.d/*.yml"
     stdin_open: true # docker run -i
     tty: true        # docker run -t   
     logging:
@@ -173,5 +171,5 @@ networks:
 ##################################################################################
 # VOLUMES                                                                        #
 ##################################################################################
-volumes:
-  ngixlog: {}
+#volumes:
+#  ngixlog: {}
